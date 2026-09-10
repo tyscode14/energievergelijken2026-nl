@@ -907,8 +907,72 @@ table.num td:first-child{font-weight:500}
   var slot=$('#daisycon-slot'), consentBox=$('#consent');
   function consentState(){ try{ return localStorage.getItem('dcConsent')||''; }catch(e){ return ''; } }
   function setConsent(v){ try{ localStorage.setItem('dcConsent',v); }catch(e){} }
-  /* Vul deze functie met de embedcode uit de Daisycon-codegenerator (Energievergelijker NL). */
-  window.loadDaisycon = window.loadDaisycon || function(container, input){ container.innerHTML='<p><strong>Vergelijker nog niet gekoppeld.</strong></p><p>Plaats de Daisycon-embedcode in window.loadDaisycon in index.html.</p>'; };
+  /* ---- Daisycon Energievergelijker (NL) ----
+     DAISYCON_MEDIA_ID: het media-ID van energievergelijken2026.nl in MyDaisycon (Media > website > ID).
+     De widget wordt pas geladen na cookietoestemming en krijgt de ingevulde verbruiksgegevens mee. */
+  var DAISYCON_MEDIA_ID = 0;
+  var DAISYCON_SUB_ID = 'ev2026';
+  /* DC-CONFIG-START */
+  window.buildDaisyconConfig = function(input, mediaId, subId){
+    input = input || {};
+    var dubbel = input.meter === 'dubbel';
+    var kwh = parseInt(input.kwh,10) || 0, normaal = parseInt(input.kwh_normaal,10) || 0, dal = parseInt(input.kwh_dal,10) || 0;
+    var gas = input.geen_gas ? 0 : (parseInt(input.gas,10) || 0);
+    var terug = parseInt(input.teruglevering_kwh,10) || 0;
+    var pc = (input.postcode || '').replace(/\s+/g,'').toUpperCase();
+    var cfg = {
+      mediaId: { daisycon: mediaId },
+      subId: { daisycon: subId },
+      locale: 'nl-NL',
+      limit: 100, limitSplit: 100,
+      showFilters: true,
+      colorPrimary: '#16325C', colorTextPrimary: '#FFFFFF',
+      colorSecondary: '#F5D547', colorTextSecondary: '#16325C',
+      filter: {
+        sustainabilityElectricityLevels: { enabled: true },
+        sustainabilityGasLevels: { enabled: true },
+        duration: { enabled: true },
+        tariffType: { enabled: true, value: ['fixed','variable','dynamic'] },
+        tariffSort: { enabled: true, value: ['lowest_total_price'] },
+        discount: { enabled: true },
+        providerId: { enabled: true },
+        postalCode: { value: pc },
+        houseNumber: { value: String(input.huisnummer || '') },
+        houseNumberExtension: { value: '' },
+        energyMeter: { value: [dubbel ? 'smart_double' : 'smart_single'] },
+        electricity: { value: 1 },
+        electricityUsageSingle: { value: [dubbel ? (normaal+dal) : kwh] },
+        electricityUsagePeak: { value: [dubbel ? normaal : Math.round(kwh*0.57)] },
+        electricityUsageOffPeak: { value: [dubbel ? dal : kwh - Math.round(kwh*0.57)] },
+        gas: { value: gas > 0 ? 1 : 0 },
+        gasUsage: { value: [gas] },
+        solar: { value: terug > 0 ? 1 : 0 },
+        electricityFeedInSingle: { value: [terug] },
+        electricityFeedInPeak: { value: [Math.round(terug*0.6)] },
+        electricityFeedInOffPeak: { value: [terug - Math.round(terug*0.6)] }
+      }
+    };
+    return cfg;
+  };
+  window.mountDaisycon = function(container, cfg){
+    var el = document.createElement('div');
+    el.className = 'dc-tool dc-energy-tool';
+    el.setAttribute('data-config', JSON.stringify(cfg));
+    container.innerHTML = ''; container.appendChild(el);
+    if(!document.querySelector('script[data-daisycon]')){
+      var s = document.createElement('script'); s.src = 'https://daisycon.tools/energy-nl/app.js'; s.async = true; s.setAttribute('data-daisycon','1');
+      document.body.appendChild(s);
+    }
+  };
+  /* DC-CONFIG-END */
+  window.loadDaisycon = function(container, input){
+    if(!DAISYCON_MEDIA_ID){
+      container.innerHTML = '<p><strong>Vergelijker nog niet gekoppeld.</strong></p><p>Vul DAISYCON_MEDIA_ID in index.html in met het media-ID uit MyDaisycon.</p>';
+      return;
+    }
+    container.style.display = 'block'; container.style.textAlign = 'left'; container.style.padding = '0'; container.style.border = '0'; container.style.minHeight = '0';
+    window.mountDaisycon(container, window.buildDaisyconConfig(input, DAISYCON_MEDIA_ID, DAISYCON_SUB_ID));
+  };
   function loadWidget(){ if(slot.dataset.loaded) return; slot.dataset.loaded='1'; slot.innerHTML=''; window.loadDaisycon(slot, window.compareInput||{}); }
   function showConsent(){ slot.dataset.loaded=''; slot.innerHTML=''; slot.appendChild(consentBox); }
   $('#consentYes').addEventListener('click', function(){ setConsent('yes'); loadWidget(); });
