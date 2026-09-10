@@ -264,6 +264,9 @@ fieldset.field{border:0;padding:0;margin:0 0 .9rem;min-width:0}
 .summary b{font-weight:500;color:var(--lemon-deep)}
 .slot{background:var(--surface);border:1.5px dashed var(--line-strong);border-radius:var(--radius);padding:2.5rem 1.5rem;text-align:center;color:var(--muted);min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem}
 .slot iframe{width:100%;border:0}
+.slot.is-loaded{display:block;text-align:left;background:transparent;border:0;border-radius:0;min-height:0;padding:1.5rem 0 0}
+.slot.is-loaded .dc-tool{padding:.25rem}
+@media (min-width:900px){.slot.is-loaded{padding:2rem 0 0}.slot.is-loaded .dc-tool{padding:.5rem}}
 .consent{display:grid;gap:.8rem;max-width:56ch;text-align:left}
 .consent details{font-size:.8rem;color:var(--muted)}
 .consent summary{cursor:pointer;color:var(--lemon-deep)}
@@ -516,7 +519,7 @@ table.num td:first-child{font-weight:500}
         </div>
         <a class="btn btn-ink" href="#vergelijken">Gegevens aanpassen</a>
       </div>
-      <p class="note" style="margin:0 0 1.2rem;max-width:none">De vergelijking toont contracten van deelnemende leveranciers, gesorteerd op verwachte jaarkosten inclusief btw. Niet iedere leverancier neemt deel. Bij overstap ontvangen wij een vergoeding van de leverancier; die beïnvloedt de volgorde niet.</p>
+      <p class="note" style="margin:0 0 .4rem;max-width:none">De vergelijking toont contracten van deelnemende leveranciers, gesorteerd op verwachte jaarkosten inclusief btw. Niet iedere leverancier neemt deel. Bij overstap ontvangen wij een vergoeding van de leverancier; die beïnvloedt de volgorde niet.</p>
       <!-- DAISYCON EMBED: vul window.loadDaisycon in het script in met de embedcode uit de Daisycon-codegenerator. -->
       <div class="slot" id="daisycon-slot" aria-live="polite">
         <div class="consent" id="consent">
@@ -997,7 +1000,7 @@ table.num td:first-child{font-weight:500}
       container.innerHTML = '<p><strong>Vergelijker nog niet gekoppeld.</strong></p><p>Vul DAISYCON_MEDIA_ID in index.html in met het media-ID uit MyDaisycon.</p>';
       return;
     }
-    container.style.display = 'block'; container.style.textAlign = 'left'; container.style.padding = '0'; container.style.border = '0'; container.style.minHeight = '0';
+    container.classList.add('is-loaded');
     var cfg = window.buildDaisyconConfig(input, DAISYCON_MEDIA_ID, DAISYCON_SUB_ID);
     var el = document.createElement('div'); el.className = 'dc-tool dc-energy-tool'; el.setAttribute('data-config', JSON.stringify(cfg));
     container.insertBefore(el, container.firstChild);
