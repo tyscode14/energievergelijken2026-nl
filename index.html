@@ -264,7 +264,22 @@ fieldset.field{border:0;padding:0;margin:0 0 .9rem;min-width:0}
 .summary b{font-weight:500;color:var(--lemon-deep)}
 .slot{background:var(--surface);border:1.5px dashed var(--line-strong);border-radius:var(--radius);padding:2.5rem 1.5rem;text-align:center;color:var(--muted);min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem}
 .slot iframe{width:100%;border:0}
-.consent{display:grid;gap:1rem;max-width:56ch;text-align:left}
+.consent{display:grid;gap:.8rem;max-width:56ch;text-align:left}
+.consent details{font-size:.8rem;color:var(--muted)}
+.consent summary{cursor:pointer;color:var(--lemon-deep)}
+.cookiebar{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:60;width:min(760px,calc(100% - 2rem));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:.9rem 1.1rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap;font-size:.9rem}
+.cookiebar[hidden]{display:none}
+.cookiebar p{flex:1 1 320px;margin:0}
+.cookiebar details{font-size:.78rem;color:var(--muted);flex-basis:100%}
+.cookiebar summary{cursor:pointer;color:var(--lemon-deep)}
+.cookiebar .btn{padding:.6rem 1rem;font-size:.9rem}
+.loading{display:grid;place-items:center;gap:.8rem;padding:3rem 1rem;color:var(--muted)}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--lemon-deep);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spinner{animation:none}}
+.btn[aria-busy="true"]{opacity:.7;pointer-events:none}
+.dc-energy-tool[class*="dc-energy-tool--"] ~ .loading{display:none}
+.dc-energy-tool .ev-hide-month{display:none !important}
 .consent p{color:var(--ink)}
 .consent-actions{display:flex;flex-wrap:wrap;gap:.6rem}
 .consent-actions .btn{width:auto;margin:0;padding:.8rem 1.2rem;font-size:.95rem}
@@ -505,13 +520,12 @@ table.num td:first-child{font-weight:500}
       <!-- DAISYCON EMBED: vul window.loadDaisycon in het script in met de embedcode uit de Daisycon-codegenerator. -->
       <div class="slot" id="daisycon-slot" aria-live="polite">
         <div class="consent" id="consent">
-          <p><strong>Toestemming voor de vergelijker</strong></p>
-          <p>Om tarieven te tonen laadt deze pagina de energievergelijker van Daisycon. Daarbij worden functionele cookies geplaatst en één cookie (maximaal een jaar) waarmee een overstap aan deze website wordt toegerekend. Eén derde partij: Daisycon B.V. Zonder toestemming laden wij niets.</p>
+          <p><strong>Nog één klik:</strong> de vergelijker plaatst een cookie van onze vergelijkingspartner om een overstap aan deze site toe te rekenen.</p>
           <div class="consent-actions">
-            <button type="button" class="btn btn-lemon" id="consentYes">Akkoord en vergelijken</button>
+            <button type="button" class="btn btn-lemon" id="consentYes">Akkoord, toon tarieven</button>
             <button type="button" class="btn btn-ink" id="consentNo">Niet akkoord</button>
           </div>
-          <small>U kunt uw keuze altijd wijzigen via "Cookiekeuze wijzigen" in de voettekst. Meer in onze <a href="/privacy/">privacyverklaring</a>.</small>
+          <details><summary>Wat wordt er precies geplaatst?</summary>Functionele cookies en één toewijzingscookie (maximaal een jaar) van Daisycon B.V., de enige derde partij. Zonder toestemming laden wij niets. Uw keuze wijzigt u via "Cookiekeuze wijzigen" in de voettekst. Meer in onze <a href="/privacy/">privacyverklaring</a>.</details>
         </div>
       </div>
     </div>
@@ -812,6 +826,13 @@ table.num td:first-child{font-weight:500}
   </section>
 </main>
 
+<div class="cookiebar" id="cookiebar" role="dialog" aria-label="Cookiekeuze" hidden>
+  <p>Wij plaatsen alleen een cookie van onze vergelijkingspartner om een overstap aan deze site toe te rekenen. Akkoord?</p>
+  <button type="button" class="btn btn-lemon" id="barYes">Akkoord</button>
+  <button type="button" class="btn btn-ghost" id="barNo" style="color:var(--ink);border-color:var(--line-strong)">Alleen noodzakelijk</button>
+  <details><summary>Details</summary>Functionele cookies en één toewijzingscookie (maximaal een jaar) van Daisycon B.V., de enige derde partij. Zonder toestemming laden wij de vergelijker niet. Wijzigen kan altijd via "Cookiekeuze wijzigen" in de voettekst. <a href="/privacy/">Privacyverklaring</a>.</details>
+</div>
+
 <footer class="footer">
   <div class="wrap">
     <div class="footer-grid">
@@ -900,8 +921,14 @@ table.num td:first-child{font-weight:500}
     var items=[['Postcode',input.postcode.slice(0,4)+' '+input.postcode.slice(4)+' '+input.huisnummer],['Stroom',nl(input.kwh)+' kWh'+(dubbel?' ('+nl(input.kwh_normaal)+' / '+nl(input.kwh_dal)+')':'')],['Gas',input.geen_gas?'geen aansluiting':nl(input.gas)+' m³']];
     if(input.teruglevering_kwh>0) items.push(['Teruglevering',nl(input.teruglevering_kwh)+' kWh']);
     items.forEach(function(it){ var li=document.createElement('li'); li.innerHTML='<b>'+it[0]+'</b> '+it[1]; sum.appendChild(li); });
-    var res=$('#vergelijker'); res.hidden=false; res.classList.add('is-open'); res.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-    if(consentState()==='yes') loadWidget();
+    var btn=form.querySelector('button[type=submit]'); btn.setAttribute('aria-busy','true'); btn.dataset.label=btn.dataset.label||btn.innerHTML; btn.innerHTML='Vergelijking laden…';
+    var res=$('#vergelijker'); res.hidden=false; res.classList.add('is-open');
+    var st=consentState();
+    if(st==='yes'){ loadWidget(); }
+    else if(st==='no'){ showDeclined(); }
+    else { showConsent(); }
+    res.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+    setTimeout(function(){ btn.removeAttribute('aria-busy'); btn.innerHTML=btn.dataset.label; }, 900);
   });
 
   var slot=$('#daisycon-slot'), consentBox=$('#consent');
@@ -971,13 +998,33 @@ table.num td:first-child{font-weight:500}
       return;
     }
     container.style.display = 'block'; container.style.textAlign = 'left'; container.style.padding = '0'; container.style.border = '0'; container.style.minHeight = '0';
-    window.mountDaisycon(container, window.buildDaisyconConfig(input, DAISYCON_MEDIA_ID, DAISYCON_SUB_ID));
+    var cfg = window.buildDaisyconConfig(input, DAISYCON_MEDIA_ID, DAISYCON_SUB_ID);
+    var el = document.createElement('div'); el.className = 'dc-tool dc-energy-tool'; el.setAttribute('data-config', JSON.stringify(cfg));
+    container.insertBefore(el, container.firstChild);
+    if(!document.querySelector('script[data-daisycon]')){ var sc = document.createElement('script'); sc.src = 'https://daisycon.tools/energy-nl/app.js'; sc.async = true; sc.setAttribute('data-daisycon','1'); document.body.appendChild(sc); }
   };
-  function loadWidget(){ if(slot.dataset.loaded) return; slot.dataset.loaded='1'; slot.innerHTML=''; window.loadDaisycon(slot, window.compareInput||{}); }
+  var bar=$('#cookiebar');
+  function hideBar(){ bar.hidden=true; }
+  function loadWidget(){
+    if(slot.dataset.loaded) return; slot.dataset.loaded='1';
+    slot.innerHTML='<div class="loading" id="dcLoading"><div class="spinner" aria-hidden="true"></div><p>Tarieven ophalen voor uw verbruik…</p></div>';
+    window.loadDaisycon(slot, window.compareInput||{});
+    var ld=$('#dcLoading');
+    function doneLoading(){ if(ld && ld.parentNode) ld.remove(); }
+    var tries=0, poll=setInterval(function(){ tries++; if(slot.querySelector('[class*="dc-energy-tool__"]') || tries>60){ doneLoading(); clearInterval(poll); } }, 250);
+    setInterval(function(){ slot.querySelectorAll('.dc-energy-tool__product-header_price-row--month').forEach(function(row){ var a=row.querySelector('.dc-energy-tool__product-header_price-row_amount'); if(a && /^\s*€?\s*-/.test(a.textContent)) row.classList.add('ev-hide-month'); }); }, 1000);
+  }
   function showConsent(){ slot.dataset.loaded=''; slot.innerHTML=''; slot.appendChild(consentBox); }
-  $('#consentYes').addEventListener('click', function(){ setConsent('yes'); loadWidget(); });
-  $('#consentNo').addEventListener('click', function(){ setConsent('no'); slot.dataset.loaded=''; slot.innerHTML='<p><strong>Geen toestemming, dus geen vergelijker.</strong></p><p>Zonder de cookies van Daisycon kunnen wij geen tarieven tonen. U kunt uw keuze wijzigen via "Cookiekeuze wijzigen" in de voettekst, of rechtstreeks bij de leveranciers vergelijken.</p>'; });
-  $('#cookieReset').addEventListener('click', function(){ setConsent(''); var r=$('#vergelijker'); r.hidden=false; r.classList.add('is-open'); showConsent(); });
+  function showDeclined(){ slot.dataset.loaded=''; slot.innerHTML='<div class="consent"><p><strong>Zonder toestemming kunnen wij geen tarieven tonen.</strong> De vergelijker heeft één cookie van onze vergelijkingspartner nodig.</p><div class="consent-actions"><button type="button" class="btn btn-lemon" id="consentRetry">Toch akkoord, toon tarieven</button></div></div>'; $('#consentRetry').addEventListener('click', function(){ setConsent('yes'); loadWidget(); }); }
+  function accept(){ setConsent('yes'); hideBar(); if(!$('#vergelijker').hidden) loadWidget(); }
+  function decline(){ setConsent('no'); hideBar(); if(!$('#vergelijker').hidden) showDeclined(); }
+  $('#consentYes').addEventListener('click', accept);
+  $('#consentNo').addEventListener('click', decline);
+  $('#barYes').addEventListener('click', accept);
+  $('#barNo').addEventListener('click', decline);
+  $('#cookieReset').addEventListener('click', function(e){ e.preventDefault(); setConsent(''); bar.hidden=false; bar.scrollIntoView({behavior:reduce?'auto':'smooth',block:'end'}); });
+  if(consentState()===''){ bar.hidden=false; }
+  else if(consentState()==='yes'){ var l=document.createElement('link'); l.rel='preload'; l.as='script'; l.href='https://daisycon.tools/energy-nl/app.js'; document.head.appendChild(l); }
 
   if('IntersectionObserver' in window && !reduce){
     var els=$$('.reveal'); els.forEach(function(el){ if(el.getBoundingClientRect().top>window.innerHeight) el.classList.add('pending'); });
