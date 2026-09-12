@@ -271,7 +271,7 @@ fieldset.field{border:0;padding:0;margin:0 0 .9rem;min-width:0}
 .consent details{font-size:.8rem;color:var(--muted)}
 .consent summary{cursor:pointer;color:var(--lemon-deep)}
 .cookiebar{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:60;width:min(760px,calc(100% - 2rem));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:.9rem 1.1rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap;font-size:.9rem}
-.cookiebar[hidden]{display:none}
+.cookiebar[hidden]{display:none!important}
 .cookiebar p{flex:1 1 320px;margin:0}
 .cookiebar details{font-size:.78rem;color:var(--muted);flex-basis:100%}
 .cookiebar summary{cursor:pointer;color:var(--lemon-deep)}
@@ -522,14 +522,7 @@ table.num td:first-child{font-weight:500}
       <p class="note" style="margin:0 0 .4rem;max-width:none">De vergelijking toont contracten van deelnemende leveranciers, gesorteerd op verwachte jaarkosten inclusief btw. Niet iedere leverancier neemt deel. Bij overstap ontvangen wij een vergoeding van de leverancier; die beïnvloedt de volgorde niet.</p>
       <!-- DAISYCON EMBED: vul window.loadDaisycon in het script in met de embedcode uit de Daisycon-codegenerator. -->
       <div class="slot" id="daisycon-slot" aria-live="polite">
-        <div class="consent" id="consent">
-          <p><strong>Nog één klik:</strong> de vergelijker plaatst een cookie van onze vergelijkingspartner om een overstap aan deze site toe te rekenen.</p>
-          <div class="consent-actions">
-            <button type="button" class="btn btn-lemon" id="consentYes">Akkoord, toon tarieven</button>
-            <button type="button" class="btn btn-ink" id="consentNo">Niet akkoord</button>
-          </div>
-          <details><summary>Wat wordt er precies geplaatst?</summary>Functionele cookies en één toewijzingscookie (maximaal een jaar) van Daisycon B.V., de enige derde partij. Zonder toestemming laden wij niets. Uw keuze wijzigt u via "Cookiekeuze wijzigen" in de voettekst. Meer in onze <a href="/privacy/">privacyverklaring</a>.</details>
-        </div>
+
       </div>
     </div>
   </section>
@@ -926,10 +919,7 @@ table.num td:first-child{font-weight:500}
     items.forEach(function(it){ var li=document.createElement('li'); li.innerHTML='<b>'+it[0]+'</b> '+it[1]; sum.appendChild(li); });
     var btn=form.querySelector('button[type=submit]'); btn.setAttribute('aria-busy','true'); btn.dataset.label=btn.dataset.label||btn.innerHTML; btn.innerHTML='Vergelijking laden…';
     var res=$('#vergelijker'); res.hidden=false; res.classList.add('is-open');
-    var st=consentState();
-    if(st==='yes'){ loadWidget(); }
-    else if(st==='no'){ showDeclined(); }
-    else { showConsent(); }
+    mountWidget();
     res.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
     setTimeout(function(){ btn.removeAttribute('aria-busy'); btn.innerHTML=btn.dataset.label; }, 900);
   });
@@ -1002,32 +992,59 @@ table.num td:first-child{font-weight:500}
     }
     container.classList.add('is-loaded');
     var cfg = window.buildDaisyconConfig(input, DAISYCON_MEDIA_ID, DAISYCON_SUB_ID);
-    var el = document.createElement('div'); el.className = 'dc-tool dc-energy-tool'; el.setAttribute('data-config', JSON.stringify(cfg));
-    container.insertBefore(el, container.firstChild);
-    if(!document.querySelector('script[data-daisycon]')){ var sc = document.createElement('script'); sc.src = 'https://daisycon.tools/energy-nl/app.js'; sc.async = true; sc.setAttribute('data-daisycon','1'); document.body.appendChild(sc); }
+    var el = document.createElement('div');
+    el.className = 'dc-tool dc-energy-tool';
+    el.setAttribute('data-config', JSON.stringify(cfg));
+    container.appendChild(el);
+    /* app.js only scans on execute, so a fresh <script> is the only reliable remount */
+    var old = document.querySelector('script[data-daisycon]');
+    if(old && old.parentNode) old.parentNode.removeChild(old);
+    var sc = document.createElement('script');
+    sc.src = 'https://daisycon.tools/energy-nl/app.js'; sc.async = true; sc.setAttribute('data-daisycon','1');
+    document.body.appendChild(sc);
   };
-  var bar=$('#cookiebar');
-  function hideBar(){ bar.hidden=true; }
-  function loadWidget(){
-    if(slot.dataset.loaded) return; slot.dataset.loaded='1';
-    slot.innerHTML='<div class="loading" id="dcLoading"><div class="spinner" aria-hidden="true"></div><p>Tarieven ophalen voor uw verbruik…</p></div>';
-    window.loadDaisycon(slot, window.compareInput||{});
-    var ld=$('#dcLoading');
-    function doneLoading(){ if(ld && ld.parentNode) ld.remove(); }
-    var tries=0, poll=setInterval(function(){ tries++; if(slot.querySelector('[class*="dc-energy-tool__"]') || tries>60){ doneLoading(); clearInterval(poll); } }, 250);
-    setInterval(function(){ slot.querySelectorAll('.dc-energy-tool__product-header_price-row--month').forEach(function(row){ var a=row.querySelector('.dc-energy-tool__product-header_price-row_amount'); if(a && /^\s*€?\s*-/.test(a.textContent)) row.classList.add('ev-hide-month'); }); }, 1000);
+  /* ---------- widget: always mounts, never gated on the cookie choice ---------- */
+  var mountSeq = 0, priceSweep = null;
+
+  function mountWidget(){
+    var seq = ++mountSeq;
+    slot.innerHTML = '<div class="loading" id="dcLoading"><div class="spinner" aria-hidden="true"></div><p>Tarieven ophalen voor uw verbruik\u2026</p></div>';
+    window.loadDaisycon(slot, window.compareInput || {});
+    var tries = 0, poll = setInterval(function(){
+      tries++;
+      if(seq !== mountSeq){ clearInterval(poll); return; }
+      if(slot.querySelector('[class*="dc-energy-tool__"]') || tries > 80){
+        var ld = document.getElementById('dcLoading');
+        if(ld && ld.parentNode) ld.remove();
+        clearInterval(poll);
+      }
+    }, 250);
+    if(!priceSweep){
+      priceSweep = setInterval(function(){
+        slot.querySelectorAll('.dc-energy-tool__product-header_price-row--month').forEach(function(row){
+          var a = row.querySelector('.dc-energy-tool__product-header_price-row_amount');
+          if(a && /^\s*\u20ac?\s*-/.test(a.textContent)) row.classList.add('ev-hide-month');
+        });
+      }, 1000);
+    }
   }
-  function showConsent(){ slot.dataset.loaded=''; slot.innerHTML=''; slot.appendChild(consentBox); }
-  function showDeclined(){ slot.dataset.loaded=''; slot.innerHTML='<div class="consent"><p><strong>Zonder toestemming kunnen wij geen tarieven tonen.</strong> De vergelijker heeft één cookie van onze vergelijkingspartner nodig.</p><div class="consent-actions"><button type="button" class="btn btn-lemon" id="consentRetry">Toch akkoord, toon tarieven</button></div></div>'; $('#consentRetry').addEventListener('click', function(){ setConsent('yes'); loadWidget(); }); }
-  function accept(){ setConsent('yes'); hideBar(); if(!$('#vergelijker').hidden) loadWidget(); }
-  function decline(){ setConsent('no'); hideBar(); if(!$('#vergelijker').hidden) showDeclined(); }
-  $('#consentYes').addEventListener('click', accept);
-  $('#consentNo').addEventListener('click', decline);
-  $('#barYes').addEventListener('click', accept);
-  $('#barNo').addEventListener('click', decline);
-  $('#cookieReset').addEventListener('click', function(e){ e.preventDefault(); setConsent(''); bar.hidden=false; bar.scrollIntoView({behavior:reduce?'auto':'smooth',block:'end'}); });
-  if(consentState()===''){ bar.hidden=false; }
-  else if(consentState()==='yes'){ var l=document.createElement('link'); l.rel='preload'; l.as='script'; l.href='https://daisycon.tools/energy-nl/app.js'; document.head.appendChild(l); }
+
+  var bar = $('#cookiebar');
+  function closeBar(){ if(bar) bar.hidden = true; }
+  function accept(){ setConsent('yes'); closeBar(); }
+  function decline(){ setConsent('no'); closeBar(); }   /* never touches the widget */
+
+  var by = $('#barYes'), bn = $('#barNo'), cr = $('#cookieReset');
+  if(by) by.addEventListener('click', accept);
+  if(bn) bn.addEventListener('click', decline);
+  if(cr) cr.addEventListener('click', function(e){
+    e.preventDefault(); setConsent('');
+    if(bar){ bar.hidden = false; bar.scrollIntoView({behavior: reduce?'auto':'smooth', block:'end'}); }
+  });
+  if(consentState() === ''){ if(bar) bar.hidden = false; }
+  var pl = document.createElement('link');
+  pl.rel='preload'; pl.as='script'; pl.href='https://daisycon.tools/energy-nl/app.js';
+  document.head.appendChild(pl);
 
   if('IntersectionObserver' in window && !reduce){
     var els=$$('.reveal'); els.forEach(function(el){ if(el.getBoundingClientRect().top>window.innerHeight) el.classList.add('pending'); });
