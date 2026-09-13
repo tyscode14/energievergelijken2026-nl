@@ -393,6 +393,38 @@ table.num td:first-child{font-weight:500}
 .reveal{transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s ease}
 .reveal.pending{transform:translateY(14px);opacity:.001}
 @media (prefers-reduced-motion: reduce){.reveal,.reveal.pending{transform:none;opacity:1;transition:none}}
+
+/* Nederlandse samenstellingen (salderingsregeling, terugleververgoeding,
+   netbeheerkosten) zijn langer dan de regelbreedte op een telefoon en duwden
+   de pagina horizontaal open. Laat ze breken in plaats van overlopen. */
+body{overflow-wrap:break-word}
+h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
+
+/* Grid-items hebben standaard min-width:auto. De mobiele override zette
+   grid-template-columns:1fr (zonder minmax(0,...)), waardoor de track
+   opblies tot de min-content breedte van een tabel erin en de pagina
+   horizontaal openduwde. */
+.rail>*{min-width:0}
+.rail{grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
+@media (max-width:960px){.rail{grid-template-columns:minmax(0,1fr)}}
+.table-wrap{overflow-x:auto;max-width:100%}
+.site-header .btn{white-space:normal}
+@media (max-width:520px){.site-header .btn{display:none}}
+
+/* Grid-items krijgen standaard min-width:auto. Zodra er iets breeds in zit
+   (een tabel, een lange samenstelling) blaast de track op tot de min-content
+   breedte en duwt de pagina horizontaal open. Deze guard dwingt ze te krimpen;
+   brede tabellen scrollen binnen hun eigen .table-wrap. */
+.author>*,.contracts>*,.cta-inner>*,.faq>*,.field-row>*,.footer-grid>*,.hero-grid>*,.kpi>*,.rail>*,.reason>*,.reasons>*,.share>*,.split>*,.stats>*,.steps>*,.tables>*,.timeline>*{min-width:0}
+
+/* De headerrij (merk + knop + menu) paste niet binnen 375px en duwde de
+   pagina 19px open; het absoluut gepositioneerde menupaneel volgde mee. */
+@media (max-width:560px){
+  .site-header .wrap{gap:.5rem}
+  .brand{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .menu ul,.menu-panel{min-width:0;width:min(232px,calc(100vw - 26px));right:0}
+  .site-header .btn,.site-header .btn-lemon,.site-header .btn-primary{display:none}
+}
 </style>
 </head>
 <body>
