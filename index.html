@@ -530,7 +530,7 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
           <div class="switch"><label for="geenGas">Mijn woning heeft geen gasaansluiting</label><input type="checkbox" id="geenGas" name="geen_gas"></div>
           <div class="field" id="gasField">
             <label for="gas">Gasverbruik per jaar</label>
-            <div class="input"><input id="gas" name="gas" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="928" required><span class="unit">m³</span></div>
+            <div class="input"><input id="gas" name="gas" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="928"><span class="unit">m³</span></div>
             <span class="field-error">Vul uw jaarverbruik in m³ in, of geef aan dat u geen gas heeft.</span>
           </div>
           <button class="btn btn-lemon" type="submit">Vergelijk energiecontracten 2026 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -941,9 +941,9 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
     var dubbel=meterValue()==='dubbel';
     var totalKwh=dubbel?(parseInt(kwhN.value,10)||0)+(parseInt(kwhD.value,10)||0):(parseInt(kwh.value,10)||0);
     var kwhOk=totalKwh>0; if(!dubbel) kwhField.classList.toggle('has-error',!kwhOk); ok=ok&&kwhOk;
-    var gasOk=geenGas.checked||(parseInt(gas.value,10)||0)>0; gasField.classList.toggle('has-error',!gasOk); ok=ok&&gasOk;
+    var gasOk=geenGas.checked||/^\s*\d*\s*$/.test(gas.value); gasField.classList.toggle('has-error',!gasOk); ok=ok&&gasOk;
     if(!ok){ var first=$('.has-error input'); if(first) first.focus(); return; }
-    var input={postcode:pc.value.trim().toUpperCase().replace(/\s+/g,''),huisnummer:hn.value.trim(),meter:meterValue(),kwh:totalKwh,kwh_normaal:dubbel?(parseInt(kwhN.value,10)||0):null,kwh_dal:dubbel?(parseInt(kwhD.value,10)||0):null,gas:geenGas.checked?0:(parseInt(gas.value,10)||0),geen_gas:geenGas.checked,teruglevering_kwh:terug.checked?(parseInt(terugKwh.value,10)||0):0};
+    var input={postcode:pc.value.trim().toUpperCase().replace(/\s+/g,''),huisnummer:hn.value.trim(),meter:meterValue(),kwh:totalKwh,kwh_normaal:dubbel?(parseInt(kwhN.value,10)||0):null,kwh_dal:dubbel?(parseInt(kwhD.value,10)||0):null,gas:geenGas.checked?0:(parseInt(gas.value,10)||0),geen_gas:geenGas.checked||(parseInt(gas.value,10)||0)===0,teruglevering_kwh:terug.checked?(parseInt(terugKwh.value,10)||0):0};
     window.compareInput=input; document.dispatchEvent(new CustomEvent('compare:submit',{detail:input}));
     var sum=$('#summary'); sum.innerHTML='';
     var items=[['Postcode',input.postcode.slice(0,4)+' '+input.postcode.slice(4)+' '+input.huisnummer],['Stroom',nl(input.kwh)+' kWh'+(dubbel?' ('+nl(input.kwh_normaal)+' / '+nl(input.kwh_dal)+')':'')],['Gas',input.geen_gas?'geen aansluiting':nl(input.gas)+' m³']];
