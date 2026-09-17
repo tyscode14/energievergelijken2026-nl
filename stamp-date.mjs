@@ -26,7 +26,7 @@ const SRC = process.cwd();
 const OUT = path.join(SRC, 'dist');
 const SKIP = new Set([
   'dist', 'stamp-date.mjs', 'vercel.json', '.git', '.vercel',
-  'node_modules', '.gitignore', 'README.md',
+  'node_modules', '.gitignore', 'README.md', 'api', 'package.json',
 ]);
 
 const MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni',
