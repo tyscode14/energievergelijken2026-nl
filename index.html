@@ -1010,8 +1010,8 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
         gasUsage: { value: [gas] },
         solar: { value: terug > 0 ? 1 : 0 },
         electricityFeedInSingle: { value: [terug] },
-        electricityFeedInPeak: { value: [Math.round(terug*0.6)] },
-        electricityFeedInOffPeak: { value: [terug - Math.round(terug*0.6)] }
+        electricityFeedInPeak: {value:[0]},
+        electricityFeedInOffPeak: {value:[0]}
       }
     };
     return cfg;
