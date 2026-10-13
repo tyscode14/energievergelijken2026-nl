@@ -457,6 +457,48 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
   .ev26-switch label{font-size:.82rem;line-height:1.25}
   .ev26-panel .ev26-btn{padding:.85rem;font-size:1rem;margin-top:.1rem}
 }
+
+/* ---- preview: search-bar hero ---- */
+.ev26-hero-center{grid-template-columns:minmax(0,1fr)!important;max-width:1000px;gap:1.6rem!important;text-align:center}
+.ev26-hero-center .ev26-hero-copy{padding-top:0}
+.ev26-hero-center .ev26-lead{margin-left:auto;margin-right:auto;max-width:62ch}
+.ev26-hero-center .ev26-panel{text-align:left;overflow:visible}
+.ev26-hero-center .ev26-panel-head{border-radius:var(--radius) var(--radius) 0 0}
+.ev26-sbar-wrap{position:relative}
+.ev26-sbar-label{display:block;font-weight:700;font-size:.92rem;margin-bottom:.5rem}
+.ev26-sbar{position:relative;display:flex;align-items:center;gap:.5rem;background:#fff;border:2px solid var(--blue);border-radius:16px;padding:.45rem .45rem .45rem 1rem;box-shadow:0 10px 30px -14px rgba(22,50,92,.45);transition:box-shadow .15s,border-color .15s}
+.ev26-sbar:focus-within{box-shadow:0 0 0 4px rgba(245,213,71,.55),0 10px 30px -14px rgba(22,50,92,.45)}
+.ev26-sbar.is-bad{border-color:#C0392B}
+.ev26-sbar-ico{width:24px;height:24px;flex:none;color:var(--blue)}
+.ev26-sbar input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:1.22rem;font-weight:600;color:var(--ink);padding:.95rem .2rem}
+.ev26-sbar input::placeholder{color:#8A93A3;font-weight:500}
+.ev26-sbar-btn{flex:none;width:auto!important;margin:0!important;padding:1.05rem 1.6rem!important;font-size:1.12rem!important;border-radius:12px;display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap}
+.ev26-sbar-btn svg{width:20px;height:20px}
+.ev26-sbar-list{position:absolute;left:-2px;right:-2px;top:calc(100% + 6px);z-index:30;list-style:none;margin:0;padding:.35rem;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -18px rgba(16,24,40,.45);max-height:320px;overflow:auto}
+.ev26-sbar-list li{display:flex;gap:.7rem;align-items:center;padding:.75rem .85rem;border-radius:10px;cursor:pointer;font-size:1rem;color:var(--ink)}
+.ev26-sbar-list li small{color:#5B6470;font-size:.86rem}
+.ev26-sbar-list li[aria-selected="true"],.ev26-sbar-list li:hover{background:#EEF2F9}
+.ev26-sbar-list li.is-empty{cursor:default;color:#5B6470}
+.ev26-sbar-hint{margin:.55rem 0 0;font-size:.84rem;color:#5B6470}
+.ev26-sbar-error{margin:.55rem 0 0;font-size:.88rem;color:#C0392B;font-weight:600}
+.ev26-usage-sum{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem;margin-top:1.1rem;padding:.8rem 1rem;background:var(--paper-2);border-radius:12px;font-size:.93rem}
+.ev26-adjust-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.45rem .95rem;font:inherit;font-weight:700;font-size:.88rem;cursor:pointer;color:var(--blue)}
+.ev26-adjust-btn[aria-expanded="true"]{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ev26-adjust{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--line)}
+.ev26-labels-tool{justify-content:flex-start;margin-top:1rem}
+.ev26-labels-tool li{color:var(--blue);border-color:rgba(22,50,92,.25);background:rgba(245,213,71,.18)}
+.ev26-labels-tool li::before{color:var(--blue)}
+.ev26-stats-center{margin:1.2rem auto 0;justify-content:center}
+.ev26-vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){
+  .ev26-hero-center{text-align:left}
+  .ev26-sbar{flex-wrap:wrap;padding:.4rem .4rem .4rem .8rem}
+  .ev26-sbar input{font-size:1.05rem;padding:.8rem .1rem;flex-basis:calc(100% - 40px)}
+  .ev26-sbar-btn{flex-basis:100%;justify-content:center}
+  .ev26-sbar-btn-x{display:none}
+  .ev26-usage-sum{font-size:.86rem}
+  .ev26-stats-center{display:none}
+}
 </style>
 <script src="/v.js" defer data-site="energievergelijken2026.nl"></script>
 <script src="/dc-fix.js"></script>
@@ -490,21 +532,10 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
 
     <section class="ev26-hero" aria-labelledby="ev26-titel">
     <canvas class="ev26-hero-canvas" id="ev26-priceCurve" aria-hidden="true"></canvas>
-    <div class="ev26-wrap ev26-hero-grid">
+    <div class="ev26-wrap ev26-hero-grid ev26-hero-center">
       <div class="ev26-hero-copy">
         <h1 id="ev26-titel">Energie vergelijken 2026 <em>voor stroom en gas</em></h1>
         <p class="ev26-lead">Energie vergelijken 2026 voor uw huishouden: stroom en gas op uw eigen verbruik in kWh en m³. U ziet vaste, variabele en dynamische contracten van deelnemende leveranciers naast elkaar, met de totale jaarkosten inclusief btw.</p>
-        <ul class="ev26-labels" aria-label="Kenmerken van deze vergelijker">
-          <li>Vast, variabel, dynamisch</li>
-          <li>Op uw eigen verbruik</li>
-          <li>Totale jaarkosten incl. btw</li>
-          <li>Gratis, geen account</li>
-        </ul>
-        <div class="ev26-stats" role="list" aria-label="Kerncijfers">
-          <div class="ev26-stat" role="listitem"><b>€ 1.993</b><span>gemiddelde energierekening 2026 (CBS)</span></div>
-          <div class="ev26-stat" role="listitem"><b>15%</b><span>huishoudens stapte over in 12 maanden (ACM)</span></div>
-          <div class="ev26-stat" role="listitem"><b>€ 0,-</b><span>kosten voor u</span></div>
-        </div>
       </div>
 
       <div class="ev26-panel" id="vergelijken">
@@ -513,6 +544,30 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
           <span class="ev26-live"><i></i>incl. btw</span>
         </div>
         <form class="ev26-panel-body" id="ev26-compareForm" novalidate autocomplete="off" aria-describedby="ev26-formHelp">
+          <div class="ev26-sbar-wrap">
+            <label class="ev26-sbar-label" for="ev26-adres">Uw adres</label>
+            <div class="ev26-sbar" id="ev26-sbar">
+              <svg class="ev26-sbar-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+              <input id="ev26-adres" type="text" inputmode="search" autocomplete="off" spellcheck="false"
+                placeholder="Postcode en huisnummer, of straat en plaats"
+                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ev26-adresList" aria-describedby="ev26-adresHint">
+              <button class="ev26-btn ev26-btn-lemon ev26-sbar-btn" type="submit">Vergelijk <span class="ev26-sbar-btn-x">energie</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              <ul class="ev26-sbar-list" id="ev26-adresList" role="listbox" aria-label="Adressuggesties" hidden></ul>
+            </div>
+            <p class="ev26-sbar-hint" id="ev26-adresHint">Bijvoorbeeld <b>1014 BL 888</b> of <b>Haarlemmerweg 888 Amsterdam</b></p>
+            <p class="ev26-sbar-error" id="ev26-adresError" role="alert" hidden>Kies een adres uit de lijst, of typ postcode en huisnummer.</p>
+          </div>
+          <div class="ev26-usage-sum">
+            <span>Verbruik: <b id="ev26-sumText">Gemiddeld huishouden · 1.747 kWh stroom · 928 m³ gas</b></span>
+            <button type="button" class="ev26-adjust-btn" id="ev26-adjustBtn" aria-expanded="false" aria-controls="ev26-adjust">Aanpassen</button>
+          </div>
+        <ul class="ev26-labels ev26-labels-tool" aria-label="Kenmerken van deze vergelijker">
+          <li>Vast, variabel, dynamisch</li>
+          <li>Op uw eigen verbruik</li>
+          <li>Totale jaarkosten incl. btw</li>
+          <li>Gratis, geen account</li>
+        </ul>
+          <div class="ev26-adjust" id="ev26-adjust" hidden>
           <div class="ev26-presets" role="group" aria-label="Indicatief verbruik per huishouden">
             <span>Weet u uw verbruik niet? Kies een indicatie:</span>
             <button type="button" class="ev26-chip" aria-pressed="false" data-kwh="1300" data-gas="600" data-label="Alleen, appartement">Alleen, appartement</button>
@@ -520,7 +575,7 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
             <button type="button" class="ev26-chip" aria-pressed="false" data-kwh="2800" data-gas="1200" data-label="Gezin, rijtjeshuis">Gezin, rijtjeshuis</button>
             <button type="button" class="ev26-chip" aria-pressed="false" data-kwh="4500" data-gas="0" data-label="Warmtepomp, geen gas">Warmtepomp, geen gas</button>
           </div>
-          <div class="ev26-field-row">
+          <div class="ev26-field-row ev26-vh" aria-hidden="true">
             <div class="ev26-field">
               <label for="ev26-postcode">Postcode</label>
               <div class="ev26-input"><input id="ev26-postcode" name="postcode" type="text" autocomplete="postal-code" placeholder="1234 AB" maxlength="7" required pattern="[1-9][0-9]{3}\s?[A-Za-z]{2}"></div>
@@ -563,10 +618,15 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
             <label for="ev26-terugKwh">Teruglevering per jaar</label>
             <div class="ev26-input"><input id="ev26-terugKwh" name="teruglevering_kwh" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="2500"><span class="ev26-unit">kWh</span></div>
           </div>
-          <button class="ev26-btn ev26-btn-lemon" type="submit">Vergelijk energiecontracten 2026 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          </div>
           <p class="ev26-fineprint" id="ev26-formHelp">Prijzen inclusief btw. Geen verplichtingen, geen account nodig. Stapt u over, dan ontvangen wij een vergoeding van de leverancier. <a href="#over-ons" style="color:inherit">Hoe wij vergelijken</a>.</p>
         </form>
       </div>
+        <div class="ev26-stats ev26-stats-center" role="list" aria-label="Kerncijfers">
+          <div class="ev26-stat" role="listitem"><b>€ 1.993</b><span>gemiddelde energierekening 2026 (CBS)</span></div>
+          <div class="ev26-stat" role="listitem"><b>15%</b><span>huishoudens stapte over in 12 maanden (ACM)</span></div>
+          <div class="ev26-stat" role="listitem"><b>€ 0,-</b><span>kosten voor u</span></div>
+        </div>
     </div>
   </section>
 
@@ -1131,6 +1191,98 @@ h1,h2,h3,p,li,dt,dd,th,td,summary,strong,b,a{overflow-wrap:break-word}
   });
   document.addEventListener('click',function(e){ if(m.open&&!m.contains(e.target))m.open=false; });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&m.open){m.open=false;m.querySelector('summary').focus();} });
+})();
+</script>
+
+<script>
+(function(){
+  var form = document.getElementById('ev26-compareForm');
+  var adres = document.getElementById('ev26-adres'), list = document.getElementById('ev26-adresList');
+  var bar = document.getElementById('ev26-sbar'), err = document.getElementById('ev26-adresError');
+  var pc = document.getElementById('ev26-postcode'), hn = document.getElementById('ev26-huisnummer');
+  var kwh = document.getElementById('ev26-kwh'), gas = document.getElementById('ev26-gas'), geenGas = document.getElementById('ev26-geenGas');
+  var adjBtn = document.getElementById('ev26-adjustBtn'), adj = document.getElementById('ev26-adjust'), sum = document.getElementById('ev26-sumText');
+  var items = [], active = -1, timer = null, seq = 0, chosen = null;
+
+  if(window.matchMedia('(max-width:640px)').matches) adres.placeholder = 'Postcode + huisnummer';
+  /* default usage so the visitor only types an address */
+  if(!kwh.value) kwh.value = '1747';
+  if(!gas.value) gas.value = '928';
+  var avg = document.querySelector('.ev26-chip[data-kwh="1747"]'); if(avg) avg.setAttribute('aria-pressed','true');
+
+  function nl(n){ return Number(n).toLocaleString('nl-NL'); }
+  function updateSum(){
+    var pressed = document.querySelector('.ev26-chip[aria-pressed="true"]');
+    var k = parseInt(kwh.value,10)||0, g = geenGas.checked ? 0 : (parseInt(gas.value,10)||0);
+    var name = pressed && +pressed.dataset.kwh === k && +pressed.dataset.gas === g ? pressed.dataset.label + ' · ' : '';
+    sum.textContent = name + nl(k) + ' kWh stroom · ' + (g ? nl(g) + ' m³ gas' : 'geen gas');
+  }
+  form.addEventListener('input', updateSum); form.addEventListener('change', updateSum); form.addEventListener('click', function(){ setTimeout(updateSum, 0); });
+  updateSum();
+  adjBtn.addEventListener('click', function(){
+    var open = adj.hidden; adj.hidden = !open; adjBtn.setAttribute('aria-expanded', String(open));
+    adjBtn.textContent = open ? 'Sluiten' : 'Aanpassen';
+  });
+
+  /* ---- address suggestions (PDOK Locatieserver, BAG addresses) ---- */
+  function close(){ list.hidden = true; adres.setAttribute('aria-expanded','false'); active = -1; adres.removeAttribute('aria-activedescendant'); }
+  function render(){
+    list.innerHTML = '';
+    if(!items.length){ var e = document.createElement('li'); e.className='is-empty'; e.textContent='Geen adres gevonden. Typ postcode en huisnummer.'; list.appendChild(e); }
+    items.forEach(function(d, i){
+      var li = document.createElement('li'); li.id = 'ev26-opt' + i; li.setAttribute('role','option');
+      li.setAttribute('aria-selected', String(i === active));
+      var street = d.weergavenaam.split(',')[0], rest = d.weergavenaam.slice(street.length + 1).trim();
+      li.innerHTML = '<span></span><small></small>'; li.firstChild.textContent = street; li.lastChild.textContent = rest;
+      li.addEventListener('mousedown', function(ev){ ev.preventDefault(); pick(i); });
+      list.appendChild(li);
+    });
+    list.hidden = false; adres.setAttribute('aria-expanded','true');
+    if(active >= 0) adres.setAttribute('aria-activedescendant', 'ev26-opt' + active);
+  }
+  function pick(i){
+    var d = items[i]; if(!d) return;
+    chosen = d; adres.value = d.weergavenaam;
+    pc.value = d.postcode; hn.value = String(d.huisnummer);
+    bar.classList.remove('is-bad'); err.hidden = true; close();
+  }
+  function search(q){
+    var my = ++seq;
+    var url = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/suggest?fq=type:adres&rows=6' +
+      '&fl=weergavenaam,postcode,huisnummer,huisletter,huisnummertoevoeging&q=' + encodeURIComponent(q);
+    fetch(url).then(function(r){ return r.json(); }).then(function(j){
+      if(my !== seq) return;
+      items = ((j.response && j.response.docs) || []).filter(function(d){ return d.postcode && d.huisnummer; }); active = items.length ? 0 : -1; render();
+    }).catch(function(){ close(); });
+  }
+  adres.addEventListener('input', function(){
+    chosen = null; pc.value = ''; hn.value = '';
+    var q = adres.value.trim(); clearTimeout(timer);
+    if(q.length < 3){ close(); return; }
+    timer = setTimeout(function(){ search(q); }, 160);
+  });
+  adres.addEventListener('keydown', function(e){
+    if(list.hidden) return;
+    if(e.key === 'ArrowDown'){ e.preventDefault(); active = Math.min(items.length - 1, active + 1); render(); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); active = Math.max(0, active - 1); render(); }
+    else if(e.key === 'Enter' && active >= 0 && items[active] && !chosen){ e.preventDefault(); pick(active); }
+    else if(e.key === 'Escape'){ close(); }
+  });
+  adres.addEventListener('blur', function(){ setTimeout(close, 120); });
+
+  /* runs before the page's own submit handler: make sure postcode + huisnummer are set */
+  document.addEventListener('submit', function(e){
+    if(e.target !== form) return;
+    if(!pc.value){
+      var m = adres.value.toUpperCase().match(/([1-9][0-9]{3})\s?([A-Z]{2})\D*(\d+)/);
+      if(m){ pc.value = m[1] + m[2]; hn.value = m[3]; }
+      else if(!list.hidden && items[active]){ pick(active); }
+    }
+    if(!pc.value || !hn.value){
+      e.preventDefault(); e.stopImmediatePropagation();
+      bar.classList.add('is-bad'); err.hidden = false; adres.focus();
+    }
+  }, true);
 })();
 </script>
 </body>
